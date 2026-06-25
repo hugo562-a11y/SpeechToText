@@ -32,7 +32,11 @@ for pkg, imp in [("faster-whisper", "faster-whisper")]:
     except ImportError:
         _MISSING.append(pkg)
 if _MISSING:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", *_MISSING, "-q"])
+    print(f"正在安裝 {', '.join(_MISSING)}（首次需下載約 2~3GB PyTorch，請耐心等待）...")
+    print("=" * 60)
+    subprocess.check_call([sys.executable, "-m", "pip", "install", *_MISSING])
+    print("=" * 60)
+    print("安裝完成！")
 
 import faster_whisper
 
@@ -316,11 +320,18 @@ class AudioToTextApp:
 
 # ── Entry ──────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    root = Tk()
-    app = AudioToTextApp(root)
     try:
+        root = Tk()
+        app = AudioToTextApp(root)
         root.mainloop()
-    except KeyboardInterrupt:
-        pass
+    except Exception as e:
+        _log_error()
+        print(f"\n錯誤：{e}")
+        print(f"詳細資訊已記錄至：{ERROR_LOG}")
+        print("\n請截圖此畫面或查看錯誤記錄檔。")
+        os.system("pause")
     finally:
-        os._exit(0)
+        try:
+            os._exit(0)
+        except Exception:
+            pass
