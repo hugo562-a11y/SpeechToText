@@ -7,9 +7,14 @@
 
 支援 MP3/WAV/MP4/MKV/AVI 等常見影音格式，輸出可選 txt/srt/vtt/json/tsv。
 
-## 下載
+## 安裝
 
-從 [Releases](https://github.com/hugo562-a11y/SpeechToText/releases) 下載 `SpeechToText.zip`，解壓縮執行 `SpeechToText.exe`。
+```bash
+git clone https://github.com/hugo562-a11y/SpeechToText.git
+cd SpeechToText
+pip install -r requirements.txt
+python audio_to_text_tool.py
+```
 
 > 首次執行會自動下載語音模型（約 1~10GB），下載一次之後離線可用。
 
