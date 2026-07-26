@@ -45,6 +45,18 @@ AUDIO_EXT = {".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac", ".wma"}
 VIDEO_EXT = {".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm"}
 ALL_EXT = AUDIO_EXT | VIDEO_EXT
 
+
+def default_output_dir():
+    """Return an existing Desktop folder, including OneDrive-redirected ones."""
+    home = Path.home()
+    candidates = [
+        home / "Desktop",
+        home / "OneDrive" / "Desktop",
+        home / "OneDrive" / "桌面",
+        home,
+    ]
+    return next((path for path in candidates if path.is_dir()), home)
+
 # ── FFmpeg (lazy download) ─────────────────────────────────────────────────
 FFMPEG_DIR = Path(tempfile.gettempdir()) / "stt_ffmpeg"
 FFMPEG_BIN = FFMPEG_DIR / "ffmpeg.exe"
@@ -96,7 +108,7 @@ class AudioToTextApp:
         self._running = False
 
         self.file_path = StringVar()
-        self.output_dir = StringVar(value=str(Path.home() / "Desktop"))
+        self.output_dir = StringVar(value=str(default_output_dir()))
         self.model_size = StringVar(value="base")
         self.language = StringVar(value="auto")
         self.task = StringVar(value="transcribe")
@@ -261,7 +273,9 @@ class AudioToTextApp:
             upd(50, f"偵測到語言：{info.language}，產出結果中...")
             seg_list = list(segs)
             base = os.path.splitext(os.path.basename(self.file_path.get()))[0]
-            out = os.path.join(self.output_dir.get(), f"{base}.{self.output_format.get()}")
+            out_dir = Path(self.output_dir.get()).expanduser()
+            out_dir.mkdir(parents=True, exist_ok=True)
+            out = str(out_dir / f"{base}.{self.output_format.get()}")
             fmts = {"txt": self._w_txt, "srt": self._w_srt, "vtt": self._w_vtt,
                     "json": self._w_json, "tsv": self._w_tsv}
             fmts[self.output_format.get()](out, seg_list, info)
